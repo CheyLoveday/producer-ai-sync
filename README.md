@@ -84,14 +84,31 @@ The script tracks progress in `data/output/favorites.json` (or `published.json` 
 - **"Could not extract bearer token"** — Delete `~/.producer-ai-auth.json` and run again
 - **Downloads failing** — Some tracks may be unavailable. The script continues past failures (stops after 5 consecutive)
 
-## Disclaimer
+## Disclaimer & Acceptable Use
 
-This tool is intended for personal backup of content you own or are otherwise authorised to download from Producer.ai (e.g. your own published tracks).
+**Intended use (personal backup only).**
+This tool is intended solely for personal backup/archival of content you own or are otherwise authorized to download from Producer.ai (for example, your own published tracks).
 
-- You are solely responsible for ensuring your use complies with Producer.ai's Terms of Service and all applicable laws
-- Do not use this tool to bypass access controls, scrape at scale, redistribute, or commercially exploit content you do not own or have rights to
-- Downloaded tracks may be subject to copyright and licensing restrictions — respect the rights of other creators
-- Use of this tool may result in account action (rate limits, suspension, etc.); use at your own risk
-- This project is not affiliated with, endorsed by, or associated with Producer.ai or Riffusion Inc.
-- This is not legal advice
-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. USE AT YOUR OWN RISK
+**Your responsibility.**
+You are solely responsible for ensuring your use complies with [Producer.ai's Terms of Service](https://www.producer.ai/terms) and any applicable laws and rights (copyright, neighboring rights, licenses, contracts, etc.). See also: [Producer.ai Copyright Policy](https://www.producer.ai/docs/plans-and-policies/copyright)
+
+**Prohibited use.**
+Do not use this tool to:
+- Bypass access controls or authentication, or attempt to access content you are not entitled to access.
+- Scrape at scale, overload services, or otherwise interfere with Producer.ai's operation.
+- Redistribute, re-upload, or commercially exploit any content you do not own or lack rights to.
+
+**Copyright and permissions.**
+Do not use third-party copyrighted material in music you make or download unless you have explicit permission from the copyright owner. See: [Producer.ai Copyright Policy](https://www.producer.ai/docs/plans-and-policies/copyright)
+
+**Risk warning.**
+Use of automation may trigger account actions (for example: rate limits, suspension, or termination). Use at your own risk.
+
+**No affiliation.**
+This project is independent and is not affiliated with, endorsed by, or associated with Producer.ai (or any related entities).
+
+**No legal advice.**
+Nothing in this repository constitutes legal advice.
+
+**Warranty disclaimer.**
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.

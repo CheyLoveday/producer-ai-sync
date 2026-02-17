@@ -1,3 +1,11 @@
+// producer-ai-sync — Personal backup tool for Producer.ai tracks
+// MIT License | https://github.com/CheyLoveday/producer-ai-sync
+//
+// For personal backup of content you own/are authorized to download only.
+// Comply with Producer.ai Terms (https://www.producer.ai/terms) and copyright
+// permissions. No circumvention, no bulk scraping, no redistribution.
+// Use at your own risk. Provided "AS IS", no warranty.
+
 import { chromium as patchrightChromium } from "patchright";
 import { writeFile, readFile, mkdir, copyFile, unlink, readdir, stat } from "fs/promises";
 import { existsSync } from "fs";
@@ -22,6 +30,12 @@ const { values: CLI } = parseArgs({
 
 if (CLI.help) {
   console.log(`Usage: npx tsx sync-favorites.ts [options]
+
+For personal backup of content you own/are authorized to download from
+Producer.ai only; comply with Producer.ai Terms and copyright permissions
+(no third-party copyrighted material without permission). No circumvention,
+no bulk scraping, no redistribution; use at your own risk; "AS IS".
+https://www.producer.ai/terms
 
 Options:
   --mode MODE, -m    "favorites" (default) or "published" (your own tracks)
