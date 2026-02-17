@@ -289,7 +289,7 @@ async function navigateToFavorites(
 ): Promise<void> {
   // First navigate to profile to pass CF challenge
   log("Navigating to profile page (CF challenge)...");
-  await navigateWithCF(page, `${BASE_URL}/Overdog`);
+  await navigateWithCF(page, BASE_URL);
 
   try {
     await page.waitForSelector('div[role="button"]', { timeout: 15000 });
