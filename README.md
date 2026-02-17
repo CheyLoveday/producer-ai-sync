@@ -82,33 +82,39 @@ The script tracks progress in `data/output/favorites.json` (or `published.json` 
 
 - **"Login timed out"** — Complete the Discord login in the browser window within 2 minutes
 - **"Could not extract bearer token"** — Delete `~/.producer-ai-auth.json` and run again
-- **Downloads failing** — Some tracks may be unavailable. The script continues past failures (stops after 5 consecutive)
+- **Downloads failing** — Some tracks may be unavailable. The script continues past failures (stops after 5 consecutive failures)
+
+## How it works
+
+This tool uses Producer.ai's internal API endpoints to fetch track listings and download WAV files, with a web UI fallback (automated browser interaction) when API downloads fail. It authenticates using your own session credentials via a real browser — no credentials are stored or transmitted outside of Producer.ai. You must comply with Producer.ai's API and platform usage terms.
 
 ## Disclaimer & Acceptable Use
 
-**Intended use (personal backup only).**
-This tool is intended solely for personal backup/archival of content you own or are otherwise authorized to download from Producer.ai (for example, your own published tracks).
+**Purpose.**
+This tool is intended **solely** for personal backup/archival of content you own or are authorized to download from Producer.ai (e.g., your own published tracks).
 
-**Your responsibility.**
-You are solely responsible for ensuring your use complies with [Producer.ai's Terms of Service](https://www.producer.ai/terms) and any applicable laws and rights (copyright, neighboring rights, licenses, contracts, etc.). See also: [Producer.ai Copyright Policy](https://www.producer.ai/docs/plans-and-policies/copyright)
+**By using this tool, you agree to these terms and accept all associated risks.**
 
-**Prohibited use.**
+**Compliance.**
+You are **solely responsible** for complying with [Producer.ai's Terms of Service](https://www.producer.ai/terms) and all applicable laws/rights (copyright, licenses, contracts, etc.). See also: [Producer.ai Copyright Policy](https://www.producer.ai/docs/plans-and-policies/copyright)
+
+**Prohibited Use.**
 Do not use this tool to:
-- Bypass access controls or authentication, or attempt to access content you are not entitled to access.
-- Scrape at scale, overload services, or otherwise interfere with Producer.ai's operation.
-- Redistribute, re-upload, or commercially exploit any content you do not own or lack rights to.
+- Bypass access controls or access unauthorized content.
+- Scrape at scale, overload services, or evade rate limits.
+- Redistribute, re-upload, or commercially exploit content you lack rights to.
 
-**Copyright and permissions.**
-Do not use third-party copyrighted material in music you make or download unless you have explicit permission from the copyright owner. See: [Producer.ai Copyright Policy](https://www.producer.ai/docs/plans-and-policies/copyright)
+**Copyright & Permissions.**
+Do not use/download third-party copyrighted material without permission from the rightsholder.
 
-**Risk warning.**
-Use of automation may trigger account actions (for example: rate limits, suspension, or termination). Use at your own risk.
+**Risk Warning.**
+Automation may trigger account actions (rate limits, suspension, termination). **Use at your own risk.**
 
-**No affiliation.**
-This project is independent and is not affiliated with, endorsed by, or associated with Producer.ai (or any related entities).
+**No Affiliation.**
+Independent project; not affiliated with or endorsed by Producer.ai.
 
-**No legal advice.**
-Nothing in this repository constitutes legal advice.
+**No Legal Advice.**
+Nothing here constitutes legal advice.
 
-**Warranty disclaimer.**
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+**License.**
+See [LICENSE](LICENSE) for full terms (software provided "AS IS", no warranty of any kind).
