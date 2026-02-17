@@ -1,0 +1,17 @@
+{
+  "name": "producer-ai-favorites",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "tsx sync-favorites.ts",
+    "dry-run": "tsx sync-favorites.ts --dry-run"
+  },
+  "dependencies": {
+    "patchright": "^1.51.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  }
+}

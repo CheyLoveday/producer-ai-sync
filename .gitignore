@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Local downloads / outputs
+downloads/
+data/output/
+
+# Auth state (contains tokens)
+.producer-ai-auth.json
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
