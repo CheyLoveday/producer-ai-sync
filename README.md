@@ -86,10 +86,12 @@ The script tracks progress in `data/output/favorites.json` (or `published.json` 
 
 ## Disclaimer
 
-This tool is intended for **personal backup purposes only** — specifically to download your own published tracks or tracks you have legitimately favourited/liked on Producer.ai.
+This tool is intended for personal backup of content you own or are otherwise authorised to download from Producer.ai (e.g. your own published tracks).
 
-- You are responsible for ensuring your use complies with [Producer.ai's Terms of Service](https://www.producer.ai/terms)
-- Do not use this tool to mass-download, redistribute, or commercially exploit content you do not own or have rights to
+- You are solely responsible for ensuring your use complies with Producer.ai's Terms of Service and all applicable laws
+- Do not use this tool to bypass access controls, scrape at scale, redistribute, or commercially exploit content you do not own or have rights to
 - Downloaded tracks may be subject to copyright and licensing restrictions — respect the rights of other creators
+- Use of this tool may result in account action (rate limits, suspension, etc.); use at your own risk
 - This project is not affiliated with, endorsed by, or associated with Producer.ai or Riffusion Inc.
+- This is not legal advice
 - THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. USE AT YOUR OWN RISK
