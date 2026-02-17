@@ -83,3 +83,13 @@ The script tracks progress in `data/output/favorites.json` (or `published.json` 
 - **"Login timed out"** — Complete the Discord login in the browser window within 2 minutes
 - **"Could not extract bearer token"** — Delete `~/.producer-ai-auth.json` and run again
 - **Downloads failing** — Some tracks may be unavailable. The script continues past failures (stops after 5 consecutive)
+
+## Disclaimer
+
+This tool is intended for **personal backup purposes only** — specifically to download your own published tracks or tracks you have legitimately favourited/liked on Producer.ai.
+
+- You are responsible for ensuring your use complies with [Producer.ai's Terms of Service](https://www.producer.ai/terms)
+- Do not use this tool to mass-download, redistribute, or commercially exploit content you do not own or have rights to
+- Downloaded tracks may be subject to copyright and licensing restrictions — respect the rights of other creators
+- This project is not affiliated with, endorsed by, or associated with Producer.ai or Riffusion Inc.
+- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. USE AT YOUR OWN RISK
