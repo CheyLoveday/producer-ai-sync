@@ -78,7 +78,7 @@ const API = {
   stats: `${BASE_URL}/__api/users/stats`,
 } as const;
 
-const PAGE_SIZE = 20; // matches what the frontend uses
+const PAGE_SIZE = LYRICS_ONLY ? 100 : 20; // larger pages for metadata-only fetches
 const MANIFEST_FILENAME = MODE === "published" ? "published.json" : "favorites.json";
 const FAVORITES_JSON_ACTUAL = join(OUTPUT_DIR, MANIFEST_FILENAME);
 
@@ -504,7 +504,7 @@ async function fetchAllFavorites(
     }
 
     pageNum++;
-    await randomDelay(200, 500);
+    if (!LYRICS_ONLY) await randomDelay(200, 500);
   }
 
   log(`Fetched ${allFavorites.length} favorites total from API`);
@@ -575,7 +575,7 @@ async function fetchAllPublished(
     }
 
     offset += PAGE_SIZE;
-    await randomDelay(200, 500);
+    if (!LYRICS_ONLY) await randomDelay(200, 500);
   }
 
   log(`Fetched ${allTracks.length} published tracks total from API`);
@@ -612,7 +612,7 @@ async function resolveUsernames(
       }
     }
 
-    await randomDelay(100, 300);
+    if (!LYRICS_ONLY) await randomDelay(100, 300);
   }
 
   debug(`Resolved ${usernameMap.size} usernames`);
