@@ -12,3 +12,10 @@ data/output/
 .DS_Store
 .idea/
 .vscode/
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# Vitest
+.vitest/

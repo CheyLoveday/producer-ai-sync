@@ -1,13 +1,26 @@
 # Producer.ai Track Downloader (Backup)
 
+![CI](https://github.com/CheyLoveday/producer-ai-sync/actions/workflows/ci.yml/badge.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-green)](https://nodejs.org/)
+
 Downloads your **published** (your own tracks) or **favorites** (liked songs) from [Producer.ai](https://www.producer.ai) as WAV files with full metadata.
 
 Use this only to download content you own or are allowed to download.
+
+## Project Status
+
+🚀 **Active Development** — This project is actively maintained. Issues, pull requests, and feature suggestions are welcome!
 
 ## Requirements
 
 - **Node.js 18+** — [download here](https://nodejs.org)
 - **A Producer.ai account** (Discord login)
+- **Disk Space** — Each track is ~30-40 MB as WAV. Examples:
+  - 50 tracks = ~1.5-2 GB
+  - 100 tracks = ~3-4 GB
+  - 500 tracks = ~15-20 GB
 
 ## Setup
 
@@ -40,11 +53,16 @@ npx tsx sync-favorites.ts --output ~/Library/CloudStorage/GoogleDrive-you@gmail.
 
 ## What happens
 
-1. A browser window opens and navigates to Producer.ai
+1. A browser window opens and navigates to Producer.ai (~5-10 seconds)
 2. If you're not logged in, **log in manually via Discord** in the browser window (you have 2 minutes)
-3. The script fetches all tracks via the API (favorites or published, depending on mode)
-4. Downloads each track as a WAV file (~30-40 MB each)
+3. The script fetches all tracks via the API (~1-5 seconds per batch of tracks)
+4. Downloads each track as a WAV file (~30-40 MB each, ~10-30 seconds per track depending on connection)
 5. Saves progress + metadata to a manifest file — if it stops, just re-run to resume
+
+**Time estimates:**
+- 10 tracks: ~5-10 minutes
+- 50 tracks: ~20-40 minutes
+- 100 tracks: ~40-80 minutes
 
 ## Metadata collected
 
@@ -78,11 +96,73 @@ Each track in the manifest includes:
 
 The script tracks progress in `data/output/favorites.json` (or `published.json` for published mode). If it stops for any reason, just re-run — it skips already-downloaded files.
 
+## Screenshots
+
+_Screenshots coming soon — showing the sync process, manifest output, and downloaded tracks._
+
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with coverage
+npm run test:coverage
+```
+
+### Linting and Type Checking
+
+```bash
+# Run ESLint
+npm run lint
+
+# Fix ESLint issues automatically
+npm run lint:fix
+
+# Run TypeScript type checking
+npm run typecheck
+```
+
+### Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+
 ## Troubleshooting
+
+### Common Issues
 
 - **"Login timed out"** — Complete the Discord login in the browser window within 2 minutes
 - **"Could not extract bearer token"** — Delete `~/.producer-ai-auth.json` and run again
 - **Downloads failing** — Some tracks may be unavailable. The script continues past failures (stops after 5 consecutive failures)
+
+### TypeScript Errors
+
+If you encounter TypeScript compilation errors:
+
+```bash
+# Ensure you have the latest dependencies
+npm install
+
+# Run type checking to see all errors
+npm run typecheck
+```
+
+### Permission Issues
+
+If you encounter permission errors when running scripts:
+
+```bash
+# On macOS/Linux, you may need to make the script executable
+chmod +x sync-favorites.ts
+
+# Or use npx tsx directly
+npx tsx sync-favorites.ts
+```
 
 ## How it works
 
