@@ -7,23 +7,22 @@
 // Use at your own risk. Provided "AS IS", no warranty.
 
 import { chromium as patchrightChromium } from "patchright";
-import { writeFile, readFile, mkdir, copyFile, unlink, readdir, stat } from "fs/promises";
+import { writeFile, readFile, mkdir, unlink, readdir, stat } from "fs/promises";
 import { existsSync } from "fs";
 import { join, resolve } from "path";
-import { tmpdir } from "os";
 import { parseArgs } from "util";
 
 // ─── CLI args ────────────────────────────────────────────────────────────────
 
 const { values: CLI } = parseArgs({
   options: {
-    mode:      { type: "string", short: "m", default: "favorites" },
-    batch:     { type: "string", short: "b", default: "10" },
-    output:    { type: "string", short: "o" },
-    "dry-run": { type: "boolean", default: false },
-    verify:    { type: "boolean", default: false },
-    debug:     { type: "boolean", short: "d", default: false },
-    help:      { type: "boolean", short: "h", default: false },
+    mode:         { type: "string", short: "m", default: "favorites" },
+    output:       { type: "string", short: "o" },
+    "dry-run":    { type: "boolean", default: false },
+    "lyrics-only":{ type: "boolean", default: false },
+    verify:       { type: "boolean", default: false },
+    debug:        { type: "boolean", short: "d", default: false },
+    help:         { type: "boolean", short: "h", default: false },
   },
   strict: false,
 });
@@ -31,17 +30,11 @@ const { values: CLI } = parseArgs({
 if (CLI.help) {
   console.log(`Usage: npx tsx sync-favorites.ts [options]
 
-For personal backup of content you own/are authorized to download from
-Producer.ai only; comply with Producer.ai Terms and copyright permissions
-(no third-party copyrighted material without permission). No circumvention,
-no bulk scraping, no redistribution; use at your own risk; "AS IS".
-https://www.producer.ai/terms
-
 Options:
   --mode MODE, -m    "favorites" (default) or "published" (your own tracks)
   --output DIR, -o   Where to save WAV files (default: ./downloads)
-  --batch N, -b N    Tracks per batch before copying to output (default: 10)
   --dry-run          Show what would be downloaded, don't download
+  --lyrics-only      Fetch metadata + lyrics only, skip audio downloads
   --verify           Check output dir for missing files, mark for redownload
   --debug, -d        Enable verbose logging
   --help, -h         Show this help
@@ -49,7 +42,8 @@ Options:
 Examples:
   npx tsx sync-favorites.ts --dry-run
   npx tsx sync-favorites.ts --mode published --output ~/Music/MyTracks
-  npx tsx sync-favorites.ts --output ~/Music/ProducerAI --batch 5
+  npx tsx sync-favorites.ts --output ~/Music/ProducerAI
+  npx tsx sync-favorites.ts --lyrics-only
   npx tsx sync-favorites.ts --verify
 `);
   process.exit(0);
@@ -62,13 +56,12 @@ const BASE_URL = "https://www.producer.ai";
 const AUTH_STATE_PATH = join(HOME, ".producer-ai-auth.json");
 const OUTPUT_DIR = resolve("data/output");
 // FAVORITES_JSON_ACTUAL defined after MODE is resolved (see MANIFEST_FILENAME below)
-const STAGING_DIR = join(tmpdir(), "producer-export-favorites");
 const DRIVE_DIR = CLI.output ? resolve(CLI.output as string) : resolve("downloads");
 
 type SyncMode = "favorites" | "published";
 const MODE: SyncMode = (CLI.mode as string) === "published" ? "published" : "favorites";
-const BATCH_SIZE = Math.max(1, parseInt(CLI.batch as string, 10) || 10);
 const DRY_RUN = !!CLI["dry-run"];
+const LYRICS_ONLY = !!CLI["lyrics-only"];
 const VERIFY = !!CLI.verify;
 const DEBUG = !!CLI.debug || !!process.env.DEBUG;
 
@@ -799,6 +792,7 @@ async function downloadWavViaBlob(
 
   const download = await page.waitForEvent("download", { timeout: 15000 });
   await download.saveAs(filepath);
+  await download.delete().catch(() => {}); // free temp artifact
   return { ok: true };
 }
 
@@ -857,25 +851,8 @@ async function downloadViaUI(
   await wavOption.first().click();
   const download = await downloadPromise;
   await download.saveAs(filepath);
+  await download.delete().catch(() => {}); // free temp artifact
   return true;
-}
-
-// ─── Copy file to Google Drive ───────────────────────────────────────────────
-
-async function copyToDrive(
-  localPath: string,
-  trackId: string
-): Promise<boolean> {
-  const destPath = join(DRIVE_DIR, `${trackId}.wav`);
-  try {
-    await mkdir(DRIVE_DIR, { recursive: true });
-    await copyFile(localPath, destPath);
-    return true;
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    log(`  Failed to copy to Drive: ${msg}`);
-    return false;
-  }
 }
 
 // ─── Print summary ───────────────────────────────────────────────────────────
@@ -920,7 +897,7 @@ async function downloadPendingFavorites(
   context: BrowserContext,
   manifest: Manifest
 ): Promise<{ downloaded: number; failed: string[] }> {
-  await mkdir(STAGING_DIR, { recursive: true });
+  await mkdir(DRIVE_DIR, { recursive: true });
 
   const failedMsgs: string[] = [];
   let downloaded = 0;
@@ -943,8 +920,7 @@ async function downloadPendingFavorites(
     return { downloaded, failed: failedMsgs };
   }
 
-  const totalBatches = Math.ceil(pending.length / BATCH_SIZE);
-  log(`${pending.length} favorites to download, batch size: ${BATCH_SIZE} (${totalBatches} batches)`);
+  log(`${pending.length} favorites to download (saving directly to ${DRIVE_DIR})`);
 
   // Extract bearer token
   let bearer: string;
@@ -959,13 +935,11 @@ async function downloadPendingFavorites(
   }
 
   let consecutiveFailures = 0;
-  const MAX_CONSECUTIVE_FAILURES = 5;
-  let batchNum = 1;
-  let batchDownloaded: { localPath: string; track: FavoriteEntry }[] = [];
+  const MAX_CONSECUTIVE_FAILURES = 20;
 
   for (let i = 0; i < pending.length; i++) {
     const track = pending[i];
-    const stagingPath = join(STAGING_DIR, `${track.id}.wav`);
+    const destPath = join(DRIVE_DIR, `${track.id}.wav`);
 
     log(`[${i + 1}/${pending.length}] Downloading "${track.title}" by ${track.artist}...`);
     track.lastAttempt = new Date().toISOString();
@@ -976,7 +950,7 @@ async function downloadPendingFavorites(
       // Try fast blob download first
       if (bearer) {
         try {
-          const result = await downloadWavViaBlob(page, track.id, bearer, stagingPath);
+          const result = await downloadWavViaBlob(page, track.id, bearer, destPath);
           if (result.ok) {
             success = true;
           } else {
@@ -986,7 +960,7 @@ async function downloadPendingFavorites(
                 const refreshed = await extractAuth(context);
                 bearer = refreshed.bearer;
                 debug(`  Refreshed bearer token`);
-                const retry = await downloadWavViaBlob(page, track.id, bearer, stagingPath);
+                const retry = await downloadWavViaBlob(page, track.id, bearer, destPath);
                 if (retry.ok) success = true;
               } catch {
                 debug(`  Retry with refreshed token also failed`);
@@ -1002,24 +976,27 @@ async function downloadPendingFavorites(
       // Fallback to UI download
       if (!success) {
         debug(`  Falling back to UI download...`);
-        success = await downloadViaUI(page, track, stagingPath);
+        success = await downloadViaUI(page, track, destPath);
       }
 
-      if (success && existsSync(stagingPath)) {
-        const fileStats = await stat(stagingPath);
+      if (success && existsSync(destPath)) {
+        const fileStats = await stat(destPath);
         if (fileStats.size > 10000) {
           const sizeMB = fileStats.size / 1024 / 1024;
-          log(`  Downloaded: ${sizeMB.toFixed(1)} MB`);
+          log(`  Downloaded: ${sizeMB.toFixed(1)} MB → ${destPath}`);
+          track.status = "downloaded";
           track.fileSizeMB = Math.round(sizeMB * 10) / 10;
+          track.driveFilename = `${track.id}.wav`;
+          track.error = undefined;
+          downloaded++;
           consecutiveFailures = 0;
-          batchDownloaded.push({ localPath: stagingPath, track });
         } else {
           track.status = "failed";
           track.error = `File too small (${fileStats.size} bytes)`;
           log(`  ${track.error}`);
           failedMsgs.push(`${track.title} [${track.id}] — ${track.error}`);
           consecutiveFailures++;
-          try { await unlink(stagingPath); } catch { /* ignore */ }
+          try { await unlink(destPath); } catch { /* ignore */ }
         }
       } else {
         track.status = "failed";
@@ -1034,30 +1011,6 @@ async function downloadPendingFavorites(
       if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
         log(`\nStopping: ${MAX_CONSECUTIVE_FAILURES} consecutive failures. Session may be expired.`);
         break;
-      }
-
-      // Copy batch to Drive when full
-      if (batchDownloaded.length >= BATCH_SIZE) {
-        log(`\n--- Batch ${batchNum}/${totalBatches}: copying ${batchDownloaded.length} files to Drive ---`);
-        for (const item of batchDownloaded) {
-          const ok = await copyToDrive(item.localPath, item.track.id);
-          if (ok) {
-            item.track.status = "downloaded";
-            item.track.driveFilename = `${item.track.id}.wav`;
-            item.track.error = undefined;
-            await unlink(item.localPath);
-            downloaded++;
-            log(`  + ${item.track.title} by ${item.track.artist} → Drive`);
-          } else {
-            item.track.status = "failed";
-            item.track.error = "Copy to Drive failed";
-            failedMsgs.push(`${item.track.title} [${item.track.id}] — copy to Drive failed`);
-            log(`  x ${item.track.title} — copy to Drive failed (staging file kept)`);
-          }
-        }
-        await saveManifest(manifest);
-        batchDownloaded = [];
-        batchNum++;
       }
 
       await randomDelay(300, 800);
@@ -1075,28 +1028,6 @@ async function downloadPendingFavorites(
         break;
       }
     }
-  }
-
-  // Copy remaining files from last partial batch
-  if (batchDownloaded.length > 0) {
-    log(`\n--- Final batch (${batchDownloaded.length} files): copying to Drive ---`);
-    for (const item of batchDownloaded) {
-      const ok = await copyToDrive(item.localPath, item.track.id);
-      if (ok) {
-        item.track.status = "downloaded";
-        item.track.driveFilename = `${item.track.id}.wav`;
-        item.track.error = undefined;
-        await unlink(item.localPath);
-        downloaded++;
-        log(`  + ${item.track.title} by ${item.track.artist} → Drive`);
-      } else {
-        item.track.status = "failed";
-        item.track.error = "Copy to Drive failed";
-        failedMsgs.push(`${item.track.title} [${item.track.id}] — copy to Drive failed`);
-        log(`  x ${item.track.title} — copy to Drive failed (staging file kept)`);
-      }
-    }
-    await saveManifest(manifest);
   }
 
   return { downloaded, failed: failedMsgs };
@@ -1238,6 +1169,35 @@ export async function syncFavorites(): Promise<void> {
       }
       console.log("");
 
+      await browser.close();
+      return;
+    }
+
+    // Lyrics-only mode: export metadata + lyrics, skip audio
+    if (LYRICS_ONLY) {
+      const lyricsOut = join(OUTPUT_DIR, MODE === "published" ? "published-lyrics.json" : "favorites-lyrics.json");
+      const lyricsExport = entries
+        .sort((a, b) => {
+          const da = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+          const db = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+          return db - da;
+        })
+        .map((t) => ({
+          title: t.title,
+          artist: t.artist,
+          lyrics: t.lyrics ?? "",
+          genre: t.genre,
+          prompt: t.prompt,
+          model: t.model,
+          seed: t.seed,
+          playCount: t.playCount,
+          favoriteCount: t.favoriteCount,
+          songUrl: t.songUrl,
+          createdAt: t.createdAt,
+        }));
+      await writeFile(lyricsOut, JSON.stringify(lyricsExport, null, 2));
+      const withLyrics = lyricsExport.filter((t) => t.lyrics.length > 0).length;
+      log(`Exported ${lyricsExport.length} tracks (${withLyrics} with lyrics) → ${lyricsOut}`);
       await browser.close();
       return;
     }

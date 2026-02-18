@@ -69,8 +69,8 @@ Each track in the manifest includes:
 |------|-------------|
 | `--mode MODE, -m` | `favorites` (default) or `published` |
 | `--output DIR, -o` | Where to save WAV files (default: `./downloads`) |
-| `--batch N, -b N` | Tracks per batch (default: 10) |
 | `--dry-run` | List tracks without downloading |
+| `--lyrics-only` | Fetch metadata + lyrics only, skip audio downloads |
 | `--verify` | Check output dir for missing files |
 | `--debug, -d` | Verbose logging |
 
