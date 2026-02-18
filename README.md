@@ -1,6 +1,13 @@
-# Producer.ai Track Downloader (Backup)
+# GenVault
 
-Downloads your **published** (your own tracks) or **favorites** (liked songs) from [Producer.ai](https://www.producer.ai) as WAV files with full metadata.
+> **GenVault — Because platforms rug-pull your art with 48 hours notice.**  
+> One ethical escape hatch for any music-gen platform.
+
+**Creating Infrastructure from Crisis** — When platforms shut down or delete your work, you need more than hope. GenVault is your defensive shield: a clean, ethical, resumable backup tool that works in the real world.
+
+Currently supports [Producer.ai](https://www.producer.ai), with more platforms coming soon (Suno, Udio, etc.).
+
+Downloads your **published** (your own tracks) or **favorites** (liked songs) as WAV files with full metadata.
 
 Use this only to download content you own or are allowed to download.
 
@@ -19,23 +26,38 @@ This installs Patchright (browser automation) and TypeScript tooling. First run 
 
 ## Usage
 
+### New Modular CLI (Recommended)
+
 ```bash
 # Back up your own published tracks
-npx tsx sync-favorites.ts --mode published
+npx tsx src/cli.ts --mode published
 
-# Download all your favorites (optional)
-npx tsx sync-favorites.ts
+# Download all your favorites
+npx tsx src/cli.ts
+
+# Or use npm scripts
+npm start  # Same as above
+npm run sync  # Same as above
 
 # Preview without downloading
-npx tsx sync-favorites.ts --dry-run
-npx tsx sync-favorites.ts --mode published --dry-run
+npx tsx src/cli.ts --dry-run
+npx tsx src/cli.ts --mode published --dry-run
 
 # Download to a specific folder
-npx tsx sync-favorites.ts --output ~/Music/Favorites
-npx tsx sync-favorites.ts --mode published --output ~/Music/MyTracks
+npx tsx src/cli.ts --output ~/Music/Favorites
+npx tsx src/cli.ts --mode published --output ~/Music/MyTracks
 
 # Download to Google Drive
-npx tsx sync-favorites.ts --output ~/Library/CloudStorage/GoogleDrive-you@gmail.com/My\ Drive/Music
+npx tsx src/cli.ts --output ~/Library/CloudStorage/GoogleDrive-you@gmail.com/My\ Drive/Music
+```
+
+### Legacy CLI (Still Supported)
+
+The original single-file CLI is still available:
+
+```bash
+npx tsx sync-favorites.ts --mode published
+npm run legacy  # Use the legacy CLI
 ```
 
 ## What happens
@@ -84,9 +106,46 @@ The script tracks progress in `data/output/favorites.json` (or `published.json` 
 - **"Could not extract bearer token"** — Delete `~/.producer-ai-auth.json` and run again
 - **Downloads failing** — Some tracks may be unavailable. The script continues past failures (stops after 5 consecutive failures)
 
+## The Vision: Multi-Platform Support
+
+GenVault is being evolved from a Producer.ai-specific tool into a **general-purpose backup solution** for multiple music generation platforms. The architecture is being refactored to support:
+- **Producer.ai** (current, fully working)
+- **Suno** (planned)
+- **Udio** (planned)
+- More platforms as they emerge (or disappear)
+
+The goal: One tool. Manual login only. Zero cloud dependencies. Runs on your machine forever.
+
+## Architecture
+
+GenVault has been refactored into a modular architecture to support multiple platforms:
+
+```
+genvault/
+├── core/                     # Shared functionality across all platforms
+│   ├── browser.ts            # Patchright browser automation
+│   ├── auth.ts               # Authentication token extraction
+│   ├── manifest.ts           # Download manifest and file verification
+│   ├── utils.ts              # Utility functions
+│   └── types.ts              # TypeScript types
+├── platforms/                # Platform-specific implementations
+│   ├── producer-ai/          # Producer.ai support (fully working)
+│   │   ├── config.ts         # API endpoints and configuration
+│   │   ├── api.ts            # API calls and data transformations
+│   │   ├── auth.ts           # Navigation and login flow
+│   │   └── downloader.ts     # Download implementation
+│   └── index.ts              # Platform registry
+├── src/
+│   └── cli.ts                # Main CLI entry point
+├── sync-favorites.ts         # Legacy single-file CLI (still works)
+└── package.json
+```
+
+This modular structure makes it easy to add new platforms in the future.
+
 ## How it works
 
-This tool uses Producer.ai's internal API endpoints to fetch track listings and download WAV files, with a web UI fallback (automated browser interaction) when API downloads fail. It authenticates using your own session credentials via a real browser — no credentials are stored or transmitted outside of Producer.ai. You must comply with Producer.ai's API and platform usage terms.
+This tool uses music platform internal API endpoints to fetch track listings and download audio files, with a web UI fallback (automated browser interaction) when API downloads fail. It authenticates using your own session credentials via a real browser — no credentials are stored or transmitted outside of the platform you're backing up from. You must comply with each platform's API and usage terms.
 
 ## Disclaimer & Acceptable Use
 
