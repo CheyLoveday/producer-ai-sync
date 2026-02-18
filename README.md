@@ -143,6 +143,51 @@ genvault/
 
 This modular structure makes it easy to add new platforms in the future.
 
+## Development
+
+### Adding a New Platform
+
+To add support for a new platform (e.g., Suno, Udio):
+
+1. Create a new directory under `platforms/` (e.g., `platforms/suno/`)
+2. Implement the platform-specific modules:
+   - `config.ts` - Platform configuration (base URL, endpoints, auth pattern)
+   - `api.ts` - API calls and data fetching logic
+   - `auth.ts` - Platform-specific authentication/navigation
+   - `downloader.ts` - Download implementation
+3. Register the platform in `platforms/index.ts`
+4. The unified CLI (`src/cli.ts`) can then be extended to support the new platform
+
+The core modules (`core/*`) provide reusable functionality like browser automation, manifest management, and authentication token extraction that work across all platforms.
+
+### Project Evolution
+
+This project evolved from a single-file Producer.ai downloader (`sync-favorites.ts`) into a general-purpose, multi-platform backup tool. The refactoring maintains 100% backward compatibility - the original script still works exactly as before.
+
+**Why GenVault exists:** Music generation platforms can shut down or delete user content with little notice. GenVault provides an ethical, user-controlled backup solution that works locally on your machine, using manual authentication and your own credentials. No cloud services, no data harvesting, just you and your art.
+
+## Contributing
+
+Contributions are welcome! Areas where help is needed:
+
+- **Platform Support**: Add support for Suno, Udio, or other music-gen platforms
+- **Discovery Engine**: Build tooling to auto-generate platform configs from network traffic
+- **Testing**: Create test fixtures and integration tests
+- **Documentation**: Improve setup guides, add platform-specific docs
+- **Features**: ID3 tagging, better error handling, rate limiting
+
+Please ensure your contributions:
+- Follow the existing code style (no semicolons, 2-space indentation)
+- Maintain ethical usage guidelines (manual auth only, respect ToS)
+- Include documentation for new features
+- Work with the modular architecture
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+This software is provided "AS IS", without warranty of any kind. Use at your own risk.
+
 ## How it works
 
 This tool uses music platform internal API endpoints to fetch track listings and download audio files, with a web UI fallback (automated browser interaction) when API downloads fail. It authenticates using your own session credentials via a real browser — no credentials are stored or transmitted outside of the platform you're backing up from. You must comply with each platform's API and usage terms.
