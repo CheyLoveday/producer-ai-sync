@@ -1,10 +1,20 @@
 {
-  "name": "producer-ai-favorites",
-  "version": "1.0.0",
+  "name": "genvault",
+  "version": "2.0.0",
+  "description": "Ethical backup tool for music generation platforms. Manual login only, zero cloud dependencies.",
   "type": "module",
   "scripts": {
-    "start": "tsx sync-favorites.ts",
-    "dry-run": "tsx sync-favorites.ts --dry-run"
+    "start": "tsx src/cli.ts",
+    "sync": "tsx src/cli.ts",
+    "legacy": "tsx sync-favorites.ts",
+    "dry-run": "tsx src/cli.ts --dry-run"
+  },
+  "keywords": ["backup", "music-generation", "producer-ai", "ethical", "archival"],
+  "author": "CheyLoveday",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CheyLoveday/producer-ai-sync.git"
   },
   "dependencies": {
     "patchright": "^1.51.1"
